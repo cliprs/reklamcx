@@ -122,16 +122,17 @@
             sellBtn.style.opacity = "0.5";
 
             const currentHeight = height;
-            const diff = maxHeight - currentHeight;
             
             setTimeout(() => {
                 document.getElementById('game-screen').classList.add('hidden');
                 document.getElementById('result-screen').classList.remove('hidden');
                 
-                if (diff < 4) {
+                // Success if at or above the target line (80%) or very close to the peak
+                if (currentHeight >= 80) {
                     document.getElementById('result-title').innerText = "MÜKEMMEL!";
-                    document.getElementById('result-desc').innerText = "Neredeyse zirveyi yakaladın! Ama bunu her saniye yapabilir misin?";
+                    document.getElementById('result-desc').innerText = "Zirveyi tam zamanında yakaladın! Ama bunu her saniye yapabilir misin?";
                 } else {
+                    const diff = maxHeight - currentHeight;
                     document.getElementById('result-title').innerText = "GEÇ KALDIN!";
                     document.getElementById('result-desc').innerText = `Zirveyi %${Math.floor(diff)} farkla kaçırdın.`;
                 }
