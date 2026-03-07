@@ -92,10 +92,20 @@
         .logic-box h4 { font-size: 28px; font-weight: 800; color: #fff; margin: 5px 0; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
         
         .main-cta {
-            width: 100%; padding: 20px; background: linear-gradient(to right, #00d2ff, #3b82f6);
-            color: #fff; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase;
-            font-size: 16px; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%; padding: 20px; 
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; border-radius: 15px; font-weight: 800; text-transform: uppercase;
+            font-size: 16px; letter-spacing: 2px; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             margin-top: auto;
+            transition: all 0.3s ease;
+        }
+        .main-cta:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.98);
         }
 
         .small-print { font-size: 9px; opacity: 0.4; margin-top: 15px; letter-spacing: 1px; }
@@ -135,7 +145,7 @@
         <h1 class="animate__animated animate__slideInUp">ÇOK GEÇ KALDINIZ.</h1>
         <p>Siz sadece 1 kez gözünüzü kırptınız.</p>
         <p style="margin-top:10px; font-weight:600;">Robotumuz bu sürede piyasada <b id="measured-trades">12 işlem</b> gerçekleştirdi.</p>
-        <button class="main-cta" style="margin-top:30px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2);" onclick="goToStep(3)">Nasıl Mümkün?</button>
+        <button class="main-cta" onclick="goToStep(3)">Nasıl Mümkün?</button>
         <div class="progress-dots"><div class="dot"></div><div class="dot active"></div><div class="dot"></div></div>
     </div>
 
