@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XAU/USD | Gizli Kasayı Bul</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root {
+            --blue-bright: #00d2ff;
+            --blue-deep: #1e40af;
+            --bg-dark: #020817;
+            --accent: #00f2fe;
+            --gold: #ffd700;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        body {
+            font-family: 'Sora', sans-serif;
+            background: radial-gradient(circle at center, var(--blue-deep) 0%, var(--bg-dark) 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; text-align: center;
+        }
+
+        .screen { width: 100%; max-width: 400px; transition: all 0.5s ease; }
+        .hidden { display: none; }
+
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; line-height: 1.1; }
+        p { font-size: 15px; opacity: 0.8; margin-bottom: 30px; line-height: 1.5; }
+
+        /* Vault Game Styles */
+        .vault-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin: 40px 0; }
+        .vault {
+            aspect-ratio: 1/1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 210, 255, 0.3);
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+        .vault:active { transform: scale(0.9); }
+        .vault.open { border-color: var(--accent); background: rgba(0, 210, 255, 0.1); }
+        .vault svg { width: 50%; height: 50%; fill: var(--blue-bright); opacity: 0.7; transition: 0.3s; }
+        .vault.open svg { fill: var(--accent); opacity: 1; transform: rotate(15deg); }
+        
+        .tries-left { font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 10px; letter-spacing: 1px; }
+
+        /* Result Styles */
+        #result-text { font-size: 24px; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+        .logic-box { 
+            background: rgba(255, 255, 255, 0.08); padding: 20px; border-radius: 20px; 
+            border-left: 4px solid var(--blue-bright); text-align: left; margin: 20px 0;
+        }
+
+        .main-cta {
+            width: 100%; padding: 20px; 
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; border-radius: 15px; font-weight: 800; text-transform: uppercase;
+            font-size: 16px; letter-spacing: 2px; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            cursor: pointer; margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .main-cta:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.98);
+        }
+
+        @media (min-width: 769px) {
+            body::after {
+                content: 'Lütfen mobil cihazdan görüntüleyin.';
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: var(--bg-dark); color: var(--blue-bright); display: flex; align-items: center; justify-content: center;
+                z-index: 9999;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SINGLE GAME SCREEN -->
+    <div id="game-screen" class="screen animate__animated animate__fadeIn">
+        <h1 style="color: var(--accent);">100 DOLARI<br>BULABİLİR MİSİN?</h1>
+        <p>Kasalardan birinde <b>$100</b>, diğerlerinde <b>$5</b> var. <br>Sadece <b>1 şansın</b> var.</p>
+        
+        <div class="vault-container">
+            <div id="v0" class="vault" onclick="openVault(0, this)">
+                <svg viewBox="0 0 24 24"><path d="M19,5V19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,11A1,1 0 0,1 13,12A1,1 0 0,1 12,13A1,1 0 0,1 11,12A1,1 0 0,1 12,11M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/></svg>
+                <span class="prize hidden" style="font-weight:800; font-size:18px;"></span>
+            </div>
+            <div id="v1" class="vault" onclick="openVault(1, this)">
+                <svg viewBox="0 0 24 24"><path d="M19,5V19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,11A1,1 0 0,1 13,12A1,1 0 0,1 12,13A1,1 0 0,1 11,12A1,1 0 0,1 12,11M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/></svg>
+                <span class="prize hidden" style="font-weight:800; font-size:18px;"></span>
+            </div>
+            <div id="v2" class="vault" onclick="openVault(2, this)">
+                <svg viewBox="0 0 24 24"><path d="M19,5V19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,11A1,1 0 0,1 13,12A1,1 0 0,1 12,13A1,1 0 0,1 11,12A1,1 0 0,1 12,11M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/></svg>
+                <span class="prize hidden" style="font-weight:800; font-size:18px;"></span>
+            </div>
+        </div>
+        <div class="tries-left">DOĞRU KASAYA DOKUN!</div>
+    </div>
+
+    <!-- SCREEN 3: RESULT -->
+    <div id="result-screen" class="screen hidden animate__animated animate__zoomIn">
+        <div id="result-text">ŞANSIN BİTTİ.</div>
+        <div class="logic-box">
+            <p style="margin:0; font-size:14px;" id="result-desc">Bu piyasada <b>şansa yer yok.</b> Siz kasayı seçerken, robotumuz saniyede binlerce fiyat farkını kâra dönüştürdü bile.</p>
+        </div>
+        <h2 style="font-size:20px; font-weight:800; margin-bottom:10px;">BİZİM İÇİN ŞANS YOK,<br><b style="color:var(--blue-bright)">MATEMATİK VAR.</b></h2>
+        <button class="main-cta" onclick="window.location.href='https://cliprs.github.io/sunumrobot'">KEŞFET</button>
+    </div>
+
+    <script>
+        const winningVault = Math.floor(Math.random() * 3);
+        let gameEnded = false;
+
+        function openVault(id, el) {
+            if(gameEnded) return;
+            gameEnded = true;
+
+            // Mark prizes in all vaults
+            for(let i=0; i<3; i++) {
+                const vault = document.getElementById('v' + i);
+                const prizeSpan = vault.querySelector('.prize');
+                vault.querySelector('svg').style.display = 'none';
+                prizeSpan.classList.remove('hidden');
+                prizeSpan.innerText = (i === winningVault) ? "$100" : "$5";
+                vault.classList.add('open');
+            }
+
+            setTimeout(() => {
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                
+                if(id === winningVault) {
+                    document.getElementById('result-text').innerText = "TEBRİKLER, $100!";
+                    document.getElementById('result-text').style.color = "var(--gold)";
+                    document.getElementById('result-desc').innerHTML = "Harika bir tahmin! Ama gerçek piyasada <b>sürekli kazanmak</b> şansla mümkün değildir. Gel, robotun bunu nasıl yaptığını gör.";
+                } else {
+                    document.getElementById('result-text').innerText = "SADECE $5 BULDUN.";
+                    document.getElementById('result-text').style.color = "#ff4b2b";
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
