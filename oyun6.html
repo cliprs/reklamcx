@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XAU/USD | Çoklu Odak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root { --blue: #00d2ff; --bg: #020817; --accent: #00f2fe; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Sora', sans-serif; background: radial-gradient(circle at center, #1e40af 0%, #020817 100%);
+            color: #fff; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+        .screen { width: 100%; max-width: 400px; padding: 20px; transition: 0.5s; }
+        .hidden { display: none; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
+        .box { 
+            aspect-ratio: 1/1; background: rgba(255,255,255,0.05); border: 2px solid rgba(0,210,255,0.2);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; transition: 0.2s; cursor: pointer;
+        }
+        .box.active { background: var(--blue); border-color: #fff; box-shadow: 0 0 30px var(--blue); }
+        .box.wrong { background: #ff4b2b; border-color: #ff4b2b; }
+        
+        .main-cta {
+            width: 100%; padding: 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 15px; font-weight: 800;
+            text-transform: uppercase; font-size: 16px; cursor: pointer; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen" class="screen">
+        <h1 style="font-size:32px; font-weight:800; line-height:1.1;">HER YERE<br><b style="color:var(--blue)">BAKABİLİR MİSİN?</b></h1>
+        <p style="margin:20px 0; opacity:0.7;">Sadece <b>MAVİ</b> yanan kutucuğa dokun. Hızlandıkça odaklanabilecek misin?</p>
+        <button class="main-cta" onclick="startGame()">BAŞLA</button>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div id="score" style="font-size:18px; font-weight:800; color:var(--blue);">SKOR: 0</div>
+        <div class="grid">
+            <div id="b0" class="box" onclick="check(0)"></div>
+            <div id="b1" class="box" onclick="check(1)"></div>
+            <div id="b2" class="box" onclick="check(2)"></div>
+            <div id="b3" class="box" onclick="check(3)"></div>
+        </div>
+        <p style="opacity:0.6; font-size:12px;">Hız artıyor...</p>
+    </div>
+
+    <div id="result-screen" class="screen hidden animate__animated animate__fadeIn">
+        <h1 style="font-size:28px; font-weight:800; color:var(--blue);">KONTROLÜ KAYBETTİN!</h1>
+        <p style="margin:20px 0; opacity:0.8;">Piyasada aynı anda yüzlerce fırsat doğar. İnsan beyni sadece birine odaklanabilir.</p>
+        <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:20px; border:1px solid var(--blue); margin-bottom:20px; text-align:left;">
+            <p style="font-size:14px;">Robotumuz aynı saniyede <b>binlerce farklı noktayı</b> tarar ve hepsini aynı anda işler.</p>
+        </div>
+        <button class="main-cta" onclick="window.location.href='https://cliprs.github.io/expertpresen'">NASIL YAPAR?</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let activeBox = -1;
+        let speed = 1000;
+        let gameActive = false;
+        let timer;
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            gameActive = true;
+            nextStep();
+        }
+
+        function nextStep() {
+            if(!gameActive) return;
+            
+            document.querySelectorAll('.box').forEach(b => b.className = 'box');
+            activeBox = Math.floor(Math.random() * 4);
+            document.getElementById('b' + activeBox).classList.add('active');
+            
+            timer = setTimeout(() => {
+                if(gameActive) endGame();
+            }, speed);
+        }
+
+        function check(id) {
+            if(!gameActive) return;
+            clearTimeout(timer);
+            
+            if(id === activeBox) {
+                score++;
+                document.getElementById('score').innerText = 'SKOR: ' + score;
+                speed = Math.max(300, 1000 - (score * 50));
+                nextStep();
+            } else {
+                document.getElementById('b' + id).classList.add('wrong');
+                setTimeout(endGame, 200);
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

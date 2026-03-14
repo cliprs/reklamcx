@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>XAU/USD | 7/24 Nöbetçi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root { --blue: #00d2ff; --bg: #020817; --accent: #00f2fe; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Sora', sans-serif; background: radial-gradient(circle at center, #1e40af 0%, #020817 100%);
+            color: #fff; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+        .screen { width: 100%; max-width: 400px; padding: 20px; transition: 0.5s; }
+        .hidden { display: none; }
+        
+        .eye-container { width: 150px; height: 150px; margin: 30px auto; position: relative; }
+        .eye-svg { width: 100%; height: 100%; fill: var(--blue); transition: 0.3s; }
+        .energy-bar-bg { width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        #energy-fill { width: 100%; height: 100%; background: var(--blue); transition: 0.1s linear; }
+        
+        .sleep-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; opacity: 0; pointer-events: none; transition: opacity 2s; z-index: 10;
+        }
+        
+        .main-cta {
+            width: 100%; padding: 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 15px; font-weight: 800;
+            text-transform: uppercase; font-size: 16px; cursor: pointer; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="sleep-overlay" class="sleep-overlay"></div>
+
+    <div id="start-screen" class="screen">
+        <h1 style="font-size:32px; font-weight:800; line-height:1.1;">GÖZÜNÜ<br><b style="color:var(--blue)">KIRPMA!</b></h1>
+        <p style="margin:20px 0; opacity:0.7;">Parmağını ekranda tut ve gözünü açık tutmaya çalış. Ne kadar dayanabilirsin?</p>
+        <button class="main-cta" onmousedown="startGame()" ontouchstart="startGame()">BAŞLA</button>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div class="eye-container">
+            <svg class="eye-svg" id="eye" viewBox="0 0 24 24"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/></svg>
+        </div>
+        <div class="energy-bar-bg"><div id="energy-fill"></div></div>
+        <p id="hint-text">Bırakma, fırsat her an gelebilir...</p>
+    </div>
+
+    <div id="result-screen" class="screen hidden animate__animated animate__fadeIn">
+        <h1 style="font-size:28px; font-weight:800; color:var(--blue);">UYUYAKALDIN!</h1>
+        <p style="margin:20px 0; opacity:0.8;">Sen sadece 6 saniye dayanabildin. Gözlerin yoruldu, dikkatin dağıldı.</p>
+        <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:20px; border:1px solid var(--blue); margin-bottom:20px; text-align:left;">
+            <p style="font-size:14px;">Robotumuz <b>7/24 hiç uyumadan</b> piyasayı izler. Sen uyurken o kazanmaya devam eder.</p>
+        </div>
+        <button class="main-cta" onclick="window.location.href='https://cliprs.github.io/expertpresen'">SİSTEMİ İNCELE</button>
+    </div>
+
+    <script>
+        let energy = 100;
+        let gameActive = false;
+        let interval;
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            gameActive = true;
+            
+            interval = setInterval(() => {
+                energy -= 1.5;
+                document.getElementById('energy-fill').style.width = energy + '%';
+                
+                if(energy < 40) {
+                    document.getElementById('sleep-overlay').style.opacity = (1 - (energy/40)) * 0.8;
+                }
+
+                if(energy <= 0) endGame();
+            }, 100);
+
+            // End game if user releases touch
+            window.addEventListener('mouseup', endGame);
+            window.addEventListener('touchend', endGame);
+        }
+
+        function endGame() {
+            if(!gameActive) return;
+            gameActive = false;
+            clearInterval(interval);
+            document.getElementById('sleep-overlay').style.opacity = '1';
+            
+            setTimeout(() => {
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('sleep-overlay').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
