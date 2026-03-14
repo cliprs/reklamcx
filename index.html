@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>XAU/USD | Hız Düellosu</title>
+    <title>XAU/USD | Grafik Avcısı</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
@@ -11,7 +11,7 @@
             --blue-bright: #00d2ff;
             --bg-dark: #020817;
             --accent: #00f2fe;
-            --red: #ff4b2b;
+            --green: #00ff88;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
         body {
@@ -27,19 +27,32 @@
         .screen { width: 100%; max-width: 400px; }
         .hidden { display: none; }
 
-        .battle-circle {
-            width: 200px; height: 200px; border-radius: 50%;
-            border: 4px solid var(--blue-bright);
-            display: flex; align-items: center; justify-content: center;
-            margin: 40px auto; position: relative;
-            cursor: pointer; transition: 0.2s;
-            background: rgba(0, 210, 255, 0.05);
+        /* Chart Animation Area */
+        .chart-area {
+            width: 100%; height: 250px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .battle-circle.active { background: var(--blue-bright); box-shadow: 0 0 50px var(--blue-bright); border-color: #fff; }
-        .battle-circle.too-early { background: var(--red); border-color: var(--red); }
+        .candle {
+            width: 40px; background: var(--green);
+            position: absolute; bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px 5px 0 0;
+            /* Glow removed */
+        }
         
-        .timer-display { font-size: 48px; font-weight: 800; margin-bottom: 10px; color: var(--blue-bright); }
-        
+        .candle.frozen { background: #fff; box-shadow: 0 0 15px #fff; }
+
+        .target-line {
+            width: 100%; height: 2px; background: rgba(255, 255, 255, 0.2);
+            position: absolute; top: 20%; left: 0;
+            border-style: dashed;
+        }
+
         .main-cta {
             width: 100%; padding: 20px; 
             background: rgba(255, 255, 255, 0.1);
@@ -56,90 +69,87 @@
             background: rgba(255, 255, 255, 0.2);
             transform: scale(0.98);
         }
-
-        @media (min-width: 769px) {
-            body::after {
-                content: 'Lütfen mobil cihazdan görüntüleyin.';
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: var(--bg-dark); color: var(--blue-bright); display: flex; align-items: center; justify-content: center;
-                z-index: 9999;
-            }
-        }
     </style>
 </head>
 <body>
 
     <div id="start-screen" class="screen">
-        <h1 style="font-size:32px; font-weight:800;">SEN Mİ HIZLISIN,<br><b style="color:var(--blue-bright)">ROBOT MU?</b></h1>
-        <p style="margin:20px 0; opacity:0.7;">Daire <b>MAVİ</b> olduğunda dokun. Tepki süreni ölçelim.</p>
-        <button class="main-cta" onclick="startTest()">TESTİ BAŞLAT</button>
+        <h1 style="font-size:32px; font-weight:800;">ZİRVEYİ<br><b style="color:var(--blue-bright)">YAKALA!</b></h1>
+        <p style="margin:20px 0; opacity:0.7;">Fiyat en tepeye ulaştığında <b>SAT</b> butonuna bas. Maksimum kârı hedefle!</p>
+        <button class="main-cta" onclick="startHunt()">AVI BAŞLAT</button>
     </div>
 
     <div id="game-screen" class="screen hidden">
-        <div id="status-text" style="font-size:18px; font-weight:600; min-height:27px;">HAZIR OL...</div>
-        <div id="target" class="battle-circle" onclick="handleClick()">
-            <span id="target-label" style="font-weight:800; font-size:24px;">BEKLE</span>
+        <div class="chart-area">
+            <div class="target-line"></div>
+            <div id="candle" class="candle" style="height: 10%;"></div>
         </div>
-        <p id="hint">Mavi olunca dokun!</p>
+        <button id="sell-btn" class="main-cta" style="background: #ff4b2b;" onclick="catchPeak()">ŞİMDİ SAT!</button>
     </div>
 
     <div id="result-screen" class="screen hidden animate__animated animate__fadeIn">
-        <div class="timer-display" id="user-time">0 ms</div>
-        <p style="margin-bottom:30px;">Senin tepki süren.</p>
+        <h1 id="result-title" style="font-size:32px; font-weight:800;">KAÇIRDIN!</h1>
+        <p id="result-desc" style="margin:20px 0; opacity:0.7;">Fiyat zirveden %12 düştükten sonra satabildin.</p>
         
         <div style="background:rgba(255,255,255,0.05); padding:20px; border-radius:20px; border:1px solid var(--blue-bright); margin-bottom:30px;">
-            <p style="font-size:14px; margin-bottom:10px;">Robotumuz bu sürede tam</p>
-            <h2 id="trade-count" style="font-size:36px; color:var(--accent); font-weight:800;">0 İŞLEM</h2>
-            <p style="font-size:14px; margin-top:10px;">gerçekleştirdi.</p>
+            <p style="font-size:14px;">Sizin dikkatiniz dağılabilir, gözünüz yorulabilir ama <b>robotumuz asla kaçırmaz.</b> 7/24 hiç yorulmadan, her fırsatı milisaniyeler içinde yakalar.</p>
         </div>
+
+        <h1 style="font-size:32px; font-weight:800; margin-bottom:20px; color:var(--accent);">NASIL MI?</h1>
 
         <button class="main-cta" onclick="window.location.href='https://cliprs.github.io/sunumrobot'">KEŞFET</button>
     </div>
 
     <script>
-        let startTime, timeout;
-        let isWaiting = false;
+        let height = 10;
+        let direction = 1;
+        let interval;
+        let maxHeight = 0;
+        let gameActive = false;
 
-        function startTest() {
+        function startHunt() {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
-            prepare();
-        }
-
-        function prepare() {
-            isWaiting = true;
-            document.getElementById('target').className = 'battle-circle';
-            document.getElementById('target-label').innerText = 'BEKLE';
-            document.getElementById('status-text').innerText = 'HAZIR OL...';
+            gameActive = true;
             
-            const delay = Math.floor(Math.random() * 3000) + 2000;
-            timeout = setTimeout(() => {
-                isWaiting = false;
-                document.getElementById('target').classList.add('active');
-                document.getElementById('target-label').innerText = 'DOKUN!';
-                document.getElementById('status-text').innerText = 'ŞİMDİ!';
-                startTime = Date.now();
-            }, delay);
+            interval = setInterval(() => {
+                height += (Math.random() * 5 + 2) * direction;
+                if (height > 95) direction = -1;
+                if (height < 10) direction = 1;
+                
+                if (height > maxHeight) maxHeight = height;
+                document.getElementById('candle').style.height = height + '%';
+            }, 30);
         }
 
-        function handleClick() {
-            if (isWaiting) {
-                clearTimeout(timeout);
-                document.getElementById('target').classList.add('too-early');
-                document.getElementById('status-text').innerText = 'ÇOK ERKEN!';
-                setTimeout(prepare, 1000);
-            } else if (startTime) {
-                const endTime = Date.now();
-                const reactionTime = endTime - startTime;
-                showResult(reactionTime);
-            }
-        }
+        function catchPeak() {
+            if(!gameActive) return;
+            gameActive = false;
+            
+            clearInterval(interval);
+            const candle = document.getElementById('candle');
+            candle.classList.add('frozen'); // Highlight where it stopped
+            
+            const sellBtn = document.getElementById('sell-btn');
+            sellBtn.innerText = "İŞLEM KAPATILDI...";
+            sellBtn.style.opacity = "0.5";
 
-        function showResult(ms) {
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('user-time').innerText = ms + ' ms';
-            document.getElementById('trade-count').innerText = Math.floor(ms / 15) + ' İŞLEM';
+            const currentHeight = height;
+            
+            setTimeout(() => {
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                
+                // Success if at or above the target line (80%) or very close to the peak
+                if (currentHeight >= 80) {
+                    document.getElementById('result-title').innerText = "MÜKEMMEL!";
+                    document.getElementById('result-desc').innerText = "Zirveyi tam zamanında yakaladın! Ama bunu her saniye yapabilir misin?";
+                } else {
+                    const diff = maxHeight - currentHeight;
+                    document.getElementById('result-title').innerText = "GEÇ KALDIN!";
+                    document.getElementById('result-desc').innerText = `Zirveyi %${Math.floor(diff)} farkla kaçırdın. İnsan dikkati bu hızda her zaman yanılabilir.`;
+                }
+            }, 1500); // 1.5 second delay to see the result
         }
     </script>
 </body>
